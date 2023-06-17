@@ -72,4 +72,343 @@
 - ~cargo run~
 - ~cargo check~ to see if the program is compilable
 - ~cargo build --relese~ building for release (optimization)
+** Chapter 3 - Common Programming Concepts
+*** Variables and mutability
+- by default variables are immutable
+- you can make the variables mutable adding ~mut~
+  #+begin_src rust
+    fn main() {
+	let mut x = 5;
+	println!("The value of x is: {x}");
+	x = 6;
+	println!("The value of x is: {x}");
+    }
+  #+end_src
 
+  #+RESULT:
+  The value of x is: 5
+  The value of x is: 6
+
+- /constants/ are values that are bound to a name and are not allowed
+  to change
+  - is not allowed to use ~mut~
+  - declare with ~const~ not with ~let~
+  - type must be declared
+  - can be declared at any scope also global one (it is not allowed
+    for the variables declared with ~let~)
+  - the value must be a constant expression, not the result of a value
+    that could be only be computed at runtime
+  - src_rust{const THREE_HOURS_IN_SECONDS: u32 = 60 * 60 * 3;}
+  - naming convention: UPPERCASE_WITH_UNDERSCORE
+  - constants are valid for the entire time a program runs, whithin
+    the scope in which they are declared
+- you can declare a new varialbe with the same name as previous
+  variable
+
+  #+begin_src rust
+    fn main() {
+	let x = 5;
+
+	let x = x + 1; // new variable named x with value 6
+
+	{
+	    let x = x * 2; // new variable named x with value 12
+	    println!("The value of x in the inner scope is: {x}"); // 12
+	}
+
+	println!("The value of x is: {x}"); //  6
+  #+end_src
+
+- shadowing is different from mut because we're creating a new
+  variable and we can change the type of the value but reuse the same
+  name
+
+  #+begin_src rust
+    let spaces = "    ";
+    let spaces = spaces.len();
+  #+end_src
+
+*** Data Types
+- Rust is a statically typed language
+- Scalar
+  - int
+    - i8, u8
+    - i16, u16
+    - i32, u32
+    - i64, u64
+    - i128, u128
+    - isize, usize
+    - signed number are store using two's complement representation
+    - literals
+      - decimal: 98_222
+      - hex: 0xff
+      - octal: 0o77
+      - binary: 0b1111_0000
+      - byte (u8 only): b'A'
+    - for overflow use the following methods:
+      - wrapping_* (wrapping_add)
+      - checked_* (return None)
+      - overflowing_*
+      - saturating_*
+  - float
+    - f32
+    - f64 (default)
+  - operation: +, -, *, /, %
+  - bool: true of false
+  - char
+    - single quote
+    - double quote is for String
+- Compound: group multiple values into one type
+  - tuples: comma-separated list of values inside parentheses
+    - each position in the tuple has a type (they don't have to be the
+      same)
+      src_rust{let tup: (i32, f64, u8) = (500, 6.4, 1);}
+    - use pattern matching to /destructure/ a tuple
+      #+begin_src rust
+	fn main() {
+	    let tup = (500, 6.4, 1);
+
+	    let (x, y, z) = tup;
+
+	    println!("The value of y is: {y}"); // 6.4
+	}
+      #+end_src
+    - the tuple can be accessed using a period (.)
+    - first index starts from 0
+      #+begin_src rust
+	fn main() {
+	    let x: (i32, f64, u8) = (500, 6.4, 1);
+
+	    let five_hunderd = x.0;
+
+	    let six_point_four = x.1;
+
+	    let one = x.2;
+	}
+      #+end_src
+    - the tuple without vale '()' is called /unit/ and it represent an
+      empty value or an empty return type
+      - expression implicitly return the unit value if they don't
+        return any other value
+  - array: comma-separated list inside the square barackets:
+    - every element of an array must have the same types
+    - fixed length
+    - src_rust{let a = [1, 2, 3, 4, 5];}
+    - data stored in the stackz
+    - src_rust{let a = [3; 5] // initial value; length}
+    - accessing:
+      #+begin_src rust
+	fn main() {
+	    let a = [1, 2, 3, 4];
+
+	    let first = a[0];
+	    let second = a[1];
+	}
+      #+end_src
+    - rust check runtime if the access of an array is valid, and it
+      throw a runtime error in case it is not valid
+*** Functions
+- ~fn~ declare new functions
+- snake_case for function and variables
+  #+begin_src rust
+    fn main() {
+	println!("Hello, world!");
+
+	another_function();
+    }
+
+    fn another_function() {
+	println!("Another function.");
+    }
+  #+end_src
+- parameters: special variables that are part of a function's
+  signature
+- the concrete parameters are called arguments
+  #+begin_src rust
+    fn main() {
+	another_function(5);
+    }
+
+    fn another_function(x: i32) {
+	println!("The value of x is: {x}");
+    }
+  #+end_src
+- ~another_function~ has one parameter of type ~i32~ named ~x~
+- in function signature, the type of the parameter must be declared
+**** Statements and Expressions
+- function bodies are made up of a series of statements optionally
+  ending in an expression
+- statements are instructions that perform some action and do not
+  return a value
+- expression evaluate to a resultant value
+- example
+  - creating a variable and assigning a value is a statement (let)
+  - function definitions are also statements
+  - calling a function is an expression
+  - calling a macro is an expression
+  - a new scope block is an expression
+    #+begin_src rust
+      fn main() {
+	  let y = {
+	      let x = 3;
+	      x + 1 // expression doesn't have the semicolon at the end
+	  };
+
+	  println!("The value of y is: {y}");
+      }
+    #+end_src
+**** Functions with Return Values
+- the return doesn't have a name, it requires only the declaration of
+  the type after an arrow ->
+- you can return with the keyoword ~return~ with the value
+- the function returns the last expression implicitly
+#+begin_src rust
+  fn main() {
+      let x = plus_one(5);
+
+      println!("The value of x is: {x}");
+  }
+
+  fn plus_one(x: i32) -> i32 {
+      x + 1
+  }
+#+end_src
+*** Comments
+- comments starts with ~//~
+*** Control Flow
+**** if Expression
+- the expression allows allow to branch your code depending on
+  conditions
+  #+begin_src rust
+    fn main() {
+	let number = 3;
+
+	if number < 5 {
+	    println!("condition was true");
+	} else {
+	    println!("condition was false");
+	}
+    }
+  #+end_src
+- ~else~ is optional
+- the condition must be a ~bool~
+- you can use multiple condition combining ~if~ ~else~ and ~else if~
+  #+begin_src rust
+    fn main() {
+	let number = 6;
+
+	if number % 4 == 0 {
+	    println!("number is divisible by 4");
+	} else if number % 3 == 0 {
+	    println!("number is divisible by 3"); // first condition true, it goes here
+	} else if number % 2 == 0 {
+	    println!("number is divisible by 2"); // not here
+	} else {
+	    println!("number is not divisible by 4, 3, or 2");
+	}
+    }
+  #+end_src
+- it checks each if expression in turn and executes the first body for
+  which the condition evaluates to true
+- Because if is an expression, we can combine it with let
+  #+begin_src rust
+    fn main() {
+	let condition = true;
+	let number = if condition { 5 } else { 6 };
+
+	println!("The value of number is: {number}"); // 5
+    }
+  #+end_src
+- in each branch the if block must evaluate the same type
+**** Loops
+- loop, while, for
+***** Loop
+- the ~loop~ tells rust to execute a code until a ~break~
+- ~continue~ skip over the remaining code and restart the iteration
+  #+begin_src rust
+    fn main() {
+	let mut counter = 0;
+
+	let result = loop {
+	    counter += 1;
+
+	    if counter == 10 {
+		break counter * 2;
+	    }
+	};
+
+	println!("The result is {result}"); // 20
+    }
+  #+end_src
+
+- it is possible to nest the loops
+  #+begin_src rust
+    fn main() {
+	let mut count = 0;
+	'counting_up: loop {
+	    println!("count = {count}");
+	    let mut remaining = 10;
+
+	    loop {
+		println!("remaining = {remaining}");
+		if remaining == 9 {
+		    break;
+		}
+		if count == 2 {
+		    break 'counting_up;
+		}
+		remaining -= 1;
+	    }
+
+	    count += 1;
+	}
+	println!("End count = {count}");
+    }
+  #+end_src
+
+  #+begin_example
+  count = 0
+  remaining = 10
+  remaining = 9
+  count = 1
+  remaining = 10
+  remaining = 9
+  count = 2
+  remaining = 10
+  End count = 2
+  #+end_example
+***** While
+- pattern to avoid the use if ~loop~, ~if~ and ~break~
+  #+begin_src rust
+    fn main() {
+	let mut number = 3;
+
+	while number != 0 {
+	    println!("{number}!"); // 3 2 1
+
+	    number -= 1;
+	}
+
+	println!("LIFTOFF!!!");
+    }
+  #+end_src
+***** For
+- loops over element in a collection
+  #+begin_src rust
+    fn main() {
+	let a = [10, 20, 30, 40, 50];
+
+	for element in a {
+	    println!("the value is: {element}"); //10 20 30 40 50
+	}
+    }
+  #+end_src
+- you can use the for instead of while, thanks to Range
+  #+begin_src rust
+    fn main() {
+	for number in (1..4).rev() {
+	    println!("{number}!"); // 3 2 1
+	}
+	println!("LIFTOFF!!!");
+    }
+  #+end_src
