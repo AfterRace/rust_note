@@ -207,3 +207,69 @@
       #+end_src
     - rust check runtime if the access of an array is valid, and it
       throw a runtime error in case it is not valid
+*** Functions
+- ~fn~ declare new functions
+- snake_case for function and variables
+  #+begin_src rust
+    fn main() {
+	println!("Hello, world!");
+
+	another_function();
+    }
+
+    fn another_function() {
+	println!("Another function.");
+    }
+  #+end_src
+- parameters: special variables that are part of a function's
+  signature
+- the concrete parameters are called arguments
+  #+begin_src rust
+    fn main() {
+	another_function(5);
+    }
+
+    fn another_function(x: i32) {
+	println!("The value of x is: {x}");
+    }
+  #+end_src
+- ~another_function~ has one parameter of type ~i32~ named ~x~
+- in function signature, the type of the parameter must be declared
+**** Statements and Expressions
+- function bodies are made up of a series of statements optionally
+  ending in an expression
+- statements are instructions that perform some action and do not
+  return a value
+- expression evaluate to a resultant value
+- example
+  - creating a variable and assigning a value is a statement (let)
+  - function definitions are also statements
+  - calling a function is an expression
+  - calling a macro is an expression
+  - a new scope block is an expression
+    #+begin_src rust
+      fn main() {
+	  let y = {
+	      let x = 3;
+	      x + 1 // expression doesn't have the semicolon at the end
+	  };
+
+	  println!("The value of y is: {y}");
+      }
+    #+end_src
+**** Functions with Return Values
+- the return doesn't have a name, it requires only the declaration of
+  the type after an arrow ->
+- you can return with the keyoword ~return~ with the value
+- the function returns the last expression implicitly
+#+begin_src rust
+  fn main() {
+      let x = plus_one(5);
+
+      println!("The value of x is: {x}");
+  }
+
+  fn plus_one(x: i32) -> i32 {
+      x + 1
+  }
+#+end_src
