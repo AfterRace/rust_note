@@ -72,4 +72,92 @@
 - ~cargo run~
 - ~cargo check~ to see if the program is compilable
 - ~cargo build --relese~ building for release (optimization)
+** Chapter 3 - Common Programming Concepts
+*** Variables and mutability
+- by default variables are immutable
+- you can make the variables mutable adding ~mut~
+  #+begin_src rust
+    fn main() {
+	let mut x = 5;
+	println!("The value of x is: {x}");
+	x = 6;
+	println!("The value of x is: {x}");
+    }
+  #+end_src
 
+  #+RESULT:
+  The value of x is: 5
+  The value of x is: 6
+
+- /constants/ are values that are bound to a name and are not allowed
+  to change
+  - is not allowed to use ~mut~
+  - declare with ~const~ not with ~let~
+  - type must be declared
+  - can be declared at any scope also global one (it is not allowed
+    for the variables declared with ~let~)
+  - the value must be a constant expression, not the result of a value
+    that could be only be computed at runtime
+  - src_rust{const THREE_HOURS_IN_SECONDS: u32 = 60 * 60 * 3;}
+  - naming convention: UPPERCASE_WITH_UNDERSCORE
+  - constants are valid for the entire time a program runs, whithin
+    the scope in which they are declared
+- you can declare a new varialbe with the same name as previous
+  variable
+
+  #+begin_src rust
+    fn main() {
+	let x = 5;
+
+	let x = x + 1; // new variable named x with value 6
+
+	{
+	    let x = x * 2; // new variable named x with value 12
+	    println!("The value of x in the inner scope is: {x}"); // 12
+	}
+
+	println!("The value of x is: {x}"); //  6
+  #+end_src
+
+- shadowing is different from mut because we're creating a new
+  variable and we can change the type of the value but reuse the same
+  name
+
+  #+begin_src rust
+    let spaces = "    ";
+    let spaces = spaces.len();
+  #+end_src
+
+*** Data Types
+- Rust is a statically typed language
+- Scalar
+  - int
+    - i8, u8
+    - i16, u16
+    - i32, u32
+    - i64, u64
+    - i128, u128
+    - isize, usize
+    - signed number are store using two's complement representation
+    - literals
+      - decimal: 98_222
+      - hex: 0xff
+      - octal: 0o77
+      - binary: 0b1111_0000
+      - byte (u8 only): b'A'
+    - for overflow use the following methods:
+      - wrapping_* (wrapping_add)
+      - checked_* (return None)
+      - overflowing_*
+      - saturating_*
+  - float
+    - f32
+    - f64 (default)
+  - operation: +, -, *, /, %
+  - bool: true of false
+  - char
+    - single quote
+    - double quote is for String
+- Compound: group multiple values into one type
+  - tuples
+  - array
