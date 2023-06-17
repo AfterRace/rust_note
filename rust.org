@@ -1,0 +1,75 @@
+* Rust book
+** Chapter 1 - Getting Started
+*** Installation
+- use ~rustup~
+  - internet connection required
+  - to update: ~rustup update~
+  - to uninstall rust and rustup ~rustup self uninstall~
+**** Lolcal Documentation
+- to open the documentation ~rustup doc~
+*** Hello world
+- create a directory to store rust code
+
+  #+NAME: hello_world
+  #+BEGIN_SRC rust
+    fn main() {
+	println!("Hello, world!");
+    }
+  #+END_SRC
+
+  #+NAME: compile
+  #+begin_src shell
+    rustc main.rs
+    .\main.exe
+  #+end_src
+  
+**** Anatomy of a Rust program
+#+begin_src rust
+  fn main() { }
+#+end_src
+
+- definition of ~main~ function
+- parameter goes inside ()
+- body function is wrapped by {}
+
+  #+begin_src rust
+    println!("Hello world!");
+  #+end_src
+  
+- it prints text on the screen
+- four space for indentation
+- println! is a macro (because it ends with !)
+- end the line with ;
+
+*** Hello, Cargo
+- create a new project
+  #+begin_src shell
+    cargo new hello_cargo
+    cd hellp_cargo
+  #+end_src
+
+- to enable git ~cargo new --vcs=git~
+- in the folder there is a file called Cargo.toml
+  
+  #+begin_example
+  [package]
+  name = "hello_cargo"
+  version = "0.1.0"
+  edition = "2021"
+
+  # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+  [dependencies]
+  #+end_example
+
+- [package] section are configuring a package
+- [dependencies] section use to list any dependencies
+  - rust packages are called crates 
+
+**** Building and Running
+- ~cargo build~
+  - create target/debug/hello_cargo.exe
+- ~cargo run~
+- ~cargo check~ to see if the program is compilable
+- ~cargo build --relese~ building for release (optimization)
+
