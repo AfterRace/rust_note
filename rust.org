@@ -907,3 +907,95 @@
 	println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
     }
   #+end_src
+** Chapter 06 - Enum
+- enums describes variants
+*** Defining an Enum
+#+begin_src rust
+  enum IpAddrKind {
+      V4,
+      V6,
+  }
+
+  fn main() {
+      let four = IpAddrKind::V4;
+      let six = IpAddrKind::V6;
+
+      route(IpAddrKind::V4);
+      route(IpAddrKind::V6);
+  }
+
+  fn route(ip_kind: IpAddrKind) {}
+#+end_src
+**** Enum Values
+- the variants of the enum are namespaced under its identifier, using
+  the double colon (::) notation
+- it si possilbe to put data directly into each enum variant
+  - avoid the use of struct
+  #+begin_src rust
+    fn main() {
+	enum IpAddr {
+	    V4(String),
+	    V6(String),
+	}
+
+	let home = IpAddr::V4(String::from("127.0.0.1"));
+
+	let loopback = IpAddr::V6(String::from("::1"));
+    }
+  #+end_src
+- the name of each enum variant becomes a constructor of an instance
+  of the enum
+- each variant can have different types and amounts of associated data
+  #+begin_src rust
+    fn main() {
+	enum IpAddr {
+	    V4(u8, u8, u8, u8),
+	    V6(String),
+	}
+
+	let home = IpAddr::V4(127, 0, 0, 1);
+
+	let loopback = IpAddr::V6(String::from("::1"));
+    }
+  #+end_src
+- enum can embeds structs and other enum
+  #+begin_src rust
+    fn main() {
+	enum Message {
+	    Quit, // no data
+	    Move { x: i32, y: i32 }, // struct
+	    Write(String), // string
+	    ChangeColor(i32, i32, i32), // tuple
+	}
+
+	impl Message {
+	    fn call(&self) {
+		// method body would be defined here
+	    }
+	}
+
+	let m = Message::Write(String::from("hello"));
+	m.call();
+    }
+  #+end_src
+- the body of the method would use self to get the value
+**** The Option Enum and its advantages of Over Null Values
+- Option is an enum defined inside the std library that encodes the
+  very common scenario in which a value could be something or it could
+  be nothing
+- Null is not present in Rust
+#+begin_src rust
+  enum Option<T> {
+      None,
+      Some(T),
+  }
+#+end_src
+- Option<T> is included in the prelude
+  #+begin_src rust
+	let some_number = Some(5);
+	let some_char = Some('e');
+
+	let absent_number: Option<i32> = None;
+  #+end_src
+
+- remember: Option<T> and T are diffrent types
