@@ -619,3 +619,291 @@
 #+end_src
 **** Other slices
 - slice to array &[T]
+
+** Chapter 5 - Structures
+*** Defining and Instantiating Structs
+- structs hold multiple related values of different types
+- members of struct have a name
+- to define a struct
+  #+begin_src rust
+    struct User { // User is the structure name
+	active: bool,     // active is the name of a field of the structure
+	username: String,
+	email: String,
+	sign_in_count: u64,
+    }
+  #+end_src
+- to use a struct, it is mandatory to create an instance of that struct
+- instantiating a struct require values for every field
+  #+begin_src rust
+    fn main() {
+	let user1 = User {
+	    active: true,
+	    username: String::from("someusername123"),
+	    email: String::from("someone@example.com"),
+	    sign_in_count: 1,
+	};
+    }
+  #+end_src
+- to get or set a specific value from or to a struct we use the dot
+  notation
+- the entire struct must be mutable, it is not allowed to have some
+  fileds mutable and some immutable
+**** Using the Field Init Shorthand
+#+begin_src rust
+  fn build_user(email: String, username: String) -> User {
+      User {
+
+	  active: true,
+	  username,
+	  email,
+	  sign_in_count: 1,
+      }
+  }
+#+end_src
+- use the same parameter name as the field
+**** Creating Instances from Other Instances with Struct Update Syntax
+- the syntax specifies that the remaining fileds not explicitly set
+  should have the same values as the fields in the given instance
+  #+begin_src rust
+    fn main() {
+	// --snip--
+
+	let user2 = User {
+	    email: String::from("another@example.com"),
+	    ..user1
+	};
+    }
+  #+end_src
+- note that the struct update syntax use = like an assignment (it
+  moves the data), the source data could become invalid. (See the
+  differences between move and copy for every fields)
+**** Using Tuple Structs Without Named Fields to Create Different Types
+- tuple struct: add a meaning to a struct but without using name for
+  the fields
+  #+begin_src rust
+    struct Color(i32, i32, i32);
+    struct Point(i32, i32, i32);
+
+    fn main() {
+	let black = Color(0, 0, 0);
+	let origin = Point(0, 0, 0);
+    }
+  #+end_src
+- black and origin in that case has different types
+**** Unit-Like Structs Without Any Fields
+- struct with no fields are called unit-like struct. They are similare
+  to ()
+- the unit-like structs can be useful whe you need to implement a
+  trait on some type
+  #+begin_src rust
+    struct AlwaysEqual;
+
+    fn main() {
+	let subject = AlwaysEqual;
+    }
+  #+end_src
+*** Use Structs
+#+begin_src rust
+  struct Rectangle {
+      width: u32,
+      height: u32,
+  }
+
+  fn main() {
+      let rect1 = Rectangle {
+	  width: 30,
+	  height: 50,
+      };
+
+      println!(
+	  "The area of the rectangle is {} square pixels.",
+	  area(&rect1)
+      );
+  }
+
+  fn area(rectangle: &Rectangle) -> u32 {
+      rectangle.width * rectangle.height
+  }
+#+end_src
+**** Derived Traits
+#+begin_src rust
+  #[derive(Debug)]
+  struct Rectangle {
+      width: u32,
+      height: u32,
+  }
+
+  fn main() {
+      let rect1 = Rectangle {
+	  width: 30,
+	  height: 50,
+      };
+
+      println!("rect1 is {:?}", rect1); // inline
+      println!("rect1 is {:#?}" rect1); // not inline
+  }
+#+end_src
+- it is possible to use ~dbg!~ macro, it writes on stderr
+  #+begin_src rust
+    #[derive(Debug)]
+    struct Rectangle {
+	width: u32,
+	height: u32,
+    }
+
+    fn main() {
+	let scale = 2;
+	let rect1 = Rectangle {
+	    width: dbg!(30 * scale),
+	    height: 50,
+	};
+
+	dbg!(&rect1);
+    }
+  #+end_src
+*** Method Syntax
+- method are functions defined within the context of a struct (enum or trait)
+- first parameter of a method is always self
+  - self represnets the instance of the struct the method being called
+    on
+**** Defining Methods
+#+begin_src rust
+  #[derive(Debug)]
+  struct Rectangle {
+      width: u32,
+      height: u32,
+  }
+
+  impl Rectangle { // start of implementation block
+      fn area(&self) -> u32 { // definition of area method
+	  self.width * self.height
+      }
+  }
+
+  fn main() {
+      let rect1 = Rectangle {
+	  width: 30,
+	  height: 50,
+      };
+
+      println!(
+	  "The area of the rectangle is {} square pixels.",
+	  rect1.area()
+      );
+  }
+#+end_src
+- &self is a shor for self: &Self
+- whithin an impl block, the type Self is an alias for the type that
+  the impl block is for
+- &self because the method borrows the Self instance
+- methods can take the ownership of self, borrow self immutably or
+  borrow self mutably (&mut self)
+- it is possible to give a method the same name as one of the struct's fields.
+  - it is used for the getters
+- automatic referencing and dereferencing: when a method is called
+  with object.something(), rust automatically adds in & &mut or * so
+  object matches the signature of the methods
+  #+begin_src rust
+    #[derive(Debug)]
+    struct Rectangle {
+	width: u32,
+	height: u32,
+    }
+
+    impl Rectangle {
+	fn area(&self) -> u32 {
+	    self.width * self.height
+	}
+
+	fn can_hold(&self, other: &Rectangle) -> bool {
+	    self.width > other.width && self.height > other.height
+	}
+    }
+
+    fn main() {
+	let rect1 = Rectangle {
+	    width: 30,
+	    height: 50,
+	};
+	let rect2 = Rectangle {
+	    width: 10,
+	    height: 40,
+	};
+	let rect3 = Rectangle {
+	    width: 60,
+	    height: 45,
+	};
+
+	println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+	println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
+    }
+  #+end_src
+- add the parameter after selfz
+**** Associated Functions
+- all function defined within an impl block are called associated functions
+- it is possible to don't have self as first parameter
+- Associated functions that arent' methods are often used for
+  constructors (often called new)
+  #+begin_src rust
+    #[derive(Debug)]
+    struct Rectangle {
+	width: u32,
+	height: u32,
+    }
+
+    impl Rectangle {
+	fn square(size: u32) -> Self {
+	    Self {
+		width: size,
+		height: size,
+	    }
+	}
+    }
+
+    fn main() {
+	let sq = Rectangle::square(3);
+    }
+  #+end_src
+- return type is Self
+- to call associated function we use the ~::~ syntax
+  - let sq = Rectangle::square(3)
+**** Multiple impl Blocks
+- Each struct is allowed to have multiple impl blocks
+  #+begin_src rust
+    #[derive(Debug)]
+    struct Rectangle {
+	width: u32,
+	height: u32,
+    }
+
+    impl Rectangle {
+	fn area(&self) -> u32 {
+	    self.width * self.height
+	}
+    }
+
+    impl Rectangle {
+	fn can_hold(&self, other: &Rectangle) -> bool {
+	    self.width > other.width && self.height > other.height
+	}
+    }
+
+    fn main() {
+	let rect1 = Rectangle {
+	    width: 30,
+	    height: 50,
+	};
+	let rect2 = Rectangle {
+	    width: 10,
+	    height: 40,
+	};
+	let rect3 = Rectangle {
+	    width: 60,
+	    height: 45,
+	};
+
+	println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+	println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
+    }
+  #+end_src
